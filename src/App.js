@@ -1,93 +1,71 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
-class ActionButton extends Component { 
-  render() { 
-    return (
-      <button class="ActionButton" onClick={this.props.onAction}>
-        <span>{this.props.text}</span>
-      </button>
-    );
-  }
-}
-
-class Book extends Component { 
-  deleteSelf() {
-    fetch("http://API/books/" + this.props.id + "/delete");
-  }
-  render() { 
-    return (
-      <div class="book">
-    <h3>Title: {this.props.title}</h3>
-    <span>BookID: {this.props.id}</span>
-    <span>Author: {this.props.author}</span>
-      <ActionButton text="DeleteMe" onAction={this.deleteSelf.bind(this)}/>
-      </div>
-    )
-  }
-}
-
-class BookList extends Component { 
-  constructor(props) { 
-    super(props)
-    this.state  = { books: [] }
-    fetch("http://localhost:3000/" + props.filename + ".json")
-          .then(response => response.json())
-          .then(data => this.setState({ books: data }));
-  }
-
-  render() {
-    var books = [];
-    for (var i = 0; i < this.state.books.length; i++) {
-      var book = this.state.books[i];
-      books.push(<Book title={book.title} id={book.id} author={book.author} />);
-    }
-    return (
-      <div class="booklist">{books}</div>
-    )
-  }
-}
-
-class Counter extends Component { 
-  constructor(props) {
-    super(props);
-    this.state = { count: 5 }
-  }
-
-  updateSelf() {
-     fetch("http://localhost:3000/data.json")
-          .then(response => response.json())
-          .then(data => this.setState(data));
-  
-  }
-  addToCount(delta) {
-    this.setState({count: this.state.count + delta })
-
-  }
-
-  render() { 
-    return(
-      <div>
-      <h1>COUNTER: {this.state.count}</h1>
-      <h2>AGE: {this.state.age}</h2>
-      <ActionButton text={"+" + this.props.step} onAction={this.addToCount.bind(this, this.props.step)}/>
-      <ActionButton text={"-" + this.props.step} onAction={this.addToCount.bind(this, -1 * this.props.step)}/>
-      <ActionButton text="UPDATE!!" onAction={this.updateSelf.bind(this)}/>
-      </div>
-    );
-  }
-}
-
 class App extends Component {
-  render() {
-    return (
-      <div>
-      <BookList filename="data"/>
-      <BookList filename="two"/>
-      </div>
-    );
-  }
-}
+    constructor(props) {
+        super(props);
+        this.state = {
+            user_guess: '',
+            game_id: 0,
+            guessed: '',
+            known: '',
+        }
+        this.newGame = this.newGame.bind(this);
+        this.updateGuess = this.updateGuess.bind(this);
+        this.gameUpdate = this.gameUpdate.bind(this);
+    }
 
+    newGame() {
+        fetch("http://127.0.0.1:5000/Game")
+        .then(response => response.json())
+        .then(data => this.setState({game_id:data}));
+    }
+    gameUpdate() {
+        fetch("http://127.0.0.1:5000/Game/" + this.state.game_id + "/" + this.state.user_guess)
+            .then(response => response.json())
+            .then(data => this.setState({
+                game_id: data[0],
+                guessed: data[1],
+                known: data[2], }));
+    }
+
+    updateGuess(event) {
+        this.setState({user_guess:event.target.value})
+    }
+
+   render() {
+       return (
+           <div>
+               <div>
+                   Guess:
+                   <input type="text" value={this.state.user_guess} onChange={this.updateGuess} />
+                   <button onClick={this.gameUpdate}>
+                       <span>Submit</span>
+                   </button>
+               </div>
+               <button class="button"  onClick={this.newGame}>
+               <span>New Game</span>
+               </button>
+               <div>
+               <table class="table table-dark">
+                   <thead>
+                       <tr>
+                       <th scope="col">Game ID#</th>
+                       <th scope="col">Guessed Letters</th>
+                       <th scope="col">Known Letters</th>
+                       </tr>
+                   </thead>
+                   <tbody>
+                       <tr>
+                       <td>{this.state.game_id}</td>
+                       <td>{this.state.guessed}</td>
+                       <td>{this.state.known}</td>
+                       </tr>
+                   </tbody>
+                   </table>
+               </div>
+           </div>
+       );
+   }
+}
 export default App;
