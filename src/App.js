@@ -16,10 +16,19 @@ class App extends Component {
     }
 
     newGame() {
-        fetch("http://127.0.0.1:5000/Game")
-        .then(response => response.json())
-        .then(data => this.setState({game_id:data}));
+        fetch('http://127.0.0.1:5000/Game/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+            })
+        })
+            .then(response => response.json())
+            .then(data => this.setState({game_id:data}));
     }
+    
     gameUpdate() {
         fetch("http://127.0.0.1:5000/Game/" + this.state.game_id + "/" + this.state.user_guess)
             .then(response => response.json())
