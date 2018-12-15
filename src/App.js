@@ -28,15 +28,25 @@ class App extends Component {
             .then(response => response.json())
             .then(data => this.setState({game_id:data}));
     }
-    
+
     gameUpdate() {
-        fetch("http://127.0.0.1:5000/Game/" + this.state.game_id + "/" + this.state.user_guess)
+        fetch("http://127.0.0.1:5000/Game/" + this.state.game_id + "/" + this.state.user_guess ,{
+          method: 'PUT',
+          headers:{
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+          })
+        })
             .then(response => response.json())
             .then(data => this.setState({
                 game_id: data[0],
                 guessed: data[1],
                 known: data[2], }));
     }
+
+    
 
     updateGuess(event) {
         this.setState({user_guess:event.target.value})
